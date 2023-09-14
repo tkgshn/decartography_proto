@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.0/dist/web3.min.js"></script>
+    <style>
+        body {
+            display: flex;
+        }
+        #sidebar {
+            width: 200px;
+            border-right: 1px solid black;
+        }
+
+        /* Sidebar button styling */
+        .sidebar-button {
+            background-color: #ababab;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            text-align: left;
+        }
+
+        /* Active sidebar button */
+        .sidebar-button.active {
+            background-color: #000;
+            font-weight: bold;
+        }
+
+        #content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+
+        #defalt {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        /* Hide all sections initially */
+        .section {
+            display: none;
+        }
+        
+        .sent {
+            color: red;
+        }
+        .received {
+            color: green;
+         }
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+        }
+
+        button{
+            margin: 5px;
+            
+        }
+
+
+        #YourActivityBox {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .activity-session {
+            border: 2px solid #000000;
+            padding: 16px;
+            width: calc(50% - 8px);
+            box-sizing: border-box;
+        }
+
+        .activity-answer {
+            margin-bottom: 12px;
+        }
+
+
+
+
+    </style>
+</head>
+
+<body onload="loadInfo()">
+
+    
+        <!-- Sidebar -->
+        <div id="sidebar">
+            <p><b>sidebar</b></p>
+            <button class="sidebar-button" onclick="showSection('dashboard')">Dashboard</button><br>
+            <button class="sidebar-button" onclick="showSection('activity')">Activity</button><br>
+            <button class="sidebar-button" onclick="showSection('wallet')">Wallet</button><br>
+            <button class="sidebar-button" onclick="logout()">Logout</button>
+        </div>
+    
+        <!-- Content -->
+        <div id="content">
+            
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section">
+                <h1>Start Task</h1>
+                <button id="startTask" onclick="startTask()">タスクを開始する</button>
+            </div>
+
+            <div id="activity" class="section" onload="loadActivity()">
+                <h1>Your Activity</h1>
+                <div id="YourActivityBox">
+                </div>
+            </div>
+
+            <!-- <div id="activity" class="section">
+                <h1>Your Activity</h1>
+                <div id="yourActivityBox"></div>
+            </div> -->
+
+
+    
+            <!-- Wallet Section -->
+            <div id="wallet" class="section">
+                <h1>Your Wallet Information</h1>
+                
+                <div>
+                    <p>Your Address: <span id="address"></span></p>
+                
+                    <p>Balance: <span id="balance"></span> ETH</p>
+                
+                    <p id="etherscanLink"></p>
+                
+                
+                    <table id="activityTable">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Value (ETH)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- <p>aaa</p> -->
+        </div>
+    
+            
+
+        
+
+
+    <script>
+
+    
+
+            window.onload = function () {
+                // console.log(redirectToActivity);
+                    const redirectToActivity = localStorage.getItem('redirectToActivity');
+                    localStorage.setItem('redirectToActivity', 'false');
+
+                    if (redirectToActivity === 'true') {
+                        showSection('activity');
+                        loadActivity();
+                    } else {
+                        showSection('dashboard');
+                    }
+                };
+
+
+        // Function to show the corresponding section
+            // function showSection(id) {
+                
+            //     // Hide all sections
+            //     const sections = document.querySelectorAll('.section');
+            //     sections.forEach(section => section.style.display = 'none');
+            //     // Show the selected section
+            //     document.getElementById(id).style.display = 'block';
+            // }
+
+            // function showSection(id) {
+            //         // Hide all sections
+            //         const sections = document.querySelectorAll('.section');
+            //         sections.forEach(section => section.style.display = 'none');
+
+            //         // Show the selected section
+            //         const selectedSection = document.getElementById(id);
+            //         if (selectedSection) {  // Check if the element actually exists
+            //             selectedSection.style.display = 'block';
+            //         } else {
+            //             console.error(`Element with id ${id} not found.`);
+            //         }
+            // }
+
+            function showSection(id) {
+                    // Hide all sections
+                    const sections = document.querySelectorAll('.section');
+                    sections.forEach(section => section.style.display = 'none');
+
+                    // Remove active class from all buttons
+                    const buttons = document.querySelectorAll('.sidebar-button');
+                    buttons.forEach(button => button.classList.remove('active'));
+
+                    // Show the selected section
+                    document.getElementById(id).style.display = 'block';
+
+                    // Add active class to the clicked button
+                    const activeButton = document.querySelector(`button[onclick="showSection('${id}')"]`);
+                    if (activeButton) {
+                        activeButton.classList.add('active');
+                    }
+                }
+
+
+
+            
+
+            // Function to start task
+            function startTask() {
+                localStorage.setItem('canAccessTask', 'true');
+                window.location.href = 'task.html';
+            }
+
+            // Function to logout
+            function logout() {
+                localStorage.removeItem('canAccessTask');
+                localStorage.removeItem('connectedAddress');
+                window.location.href = 'index.html';
+            }
+
+            // Function to load initial info (if any)
+            function loadInfo() {
+                // ... existing code to load wallet info
+                // Show dashboard by default
+                showSection('dashboard');
+            }
+
+        function startTask() {
+                localStorage.setItem('canAccessTask', 'true');
+                window.location.href = 'task.html';
+        }
+
+
+
+        let web3;
+        let address = localStorage.getItem('connectedAddress');
+
+        async function loadWeb3() {
+            if (window.ethereum) {
+                window.web3 = new Web3(window.ethereum);
+            } else if (window.web3) {
+                window.web3 = new Web3(window.web3.currentProvider);
+            } else {
+                alert('Non-Ethereum browser detected. You should consider installing MetaMask.');
+            }
+        }
+
+        async function loadInfo() {
+            await loadWeb3();
+            web3 = window.web3;
+
+            document.getElementById('address').innerText = address;
+
+            // const transactionCount = await web3.eth.getTransactionCount(address);
+            // document.getElementById('activity').innerText = transactionCount;
+
+            const balanceWei = await web3.eth.getBalance(address);
+            const balanceEth = web3.utils.fromWei(balanceWei, 'ether');
+            document.getElementById('balance').innerText = balanceEth;
+
+            fetchUserActivity(address);
+        }
+
+        loadInfo();
+
+
+        // Fetch user balance
+        const etherscanURL = `https://etherscan.io/address/${address}`;
+        document.getElementById("etherscanLink").innerHTML = `<a href="${etherscanURL}" target="_blank">More details on Explorer</a>`;
+
+
+            function fetchUserActivity(address) {
+                    const apiKey = 'C7U9P4W6GWYPXQ9SCI464PP27Q9EZD7VR6';
+                    const url = `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`;
+
+                    fetch(url)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === "1") {
+                                const transactions = data.result;
+                                let activityBody = document.getElementById("activityBody");
+                                activityBody.innerHTML = ''; // Clear previous activities
+
+                                transactions.forEach(tx => {
+                                    let row = document.createElement("tr");
+
+                                    let typeCell = document.createElement("td");
+                                    let fromCell = document.createElement("td");
+                                    let toCell = document.createElement("td");
+                                    let valueCell = document.createElement("td");
+
+                                    fromCell.textContent = tx.from;
+                                    toCell.textContent = tx.to;
+                                    valueCell.textContent = `${parseInt(tx.value) / 1e18} ETH`;
+
+                                    if (tx.from.toLowerCase() === address.toLowerCase()) {
+                                        typeCell.textContent = "Sent";
+                                        row.classList.add("sent");
+                                    } else {
+                                        typeCell.textContent = "Received";
+                                        row.classList.add("received");
+                                    }
+
+                                    row.appendChild(typeCell);
+                                    row.appendChild(fromCell);
+                                    row.appendChild(toCell);
+                                    row.appendChild(valueCell);
+
+                                    activityBody.appendChild(row);
+                                });
+                            } else {
+                                console.error('Failed to fetch user activity');
+                            }
+                        });
+                }
+
+                // window.onload = function () {
+                //         showSection('dashboard')
+                //     };
+
+                // window.onload = function () {
+                //         const redirectToActivity = localStorage.getItem('redirectToActivity');
+                //         console.log(redirectToActivity);
+                //         if (redirectToActivity === 'true') {
+                //             showSection('activity');  // 'activity'セクションを表示
+                //             localStorage.setItem('redirectToActivity', 'false');  // Set a flag to redirect to the 'activity' section
+                //         } else {
+                //             showSection('dashboard');  // デフォルトのセクションを表示
+                //             localStorage.setItem('redirectToActivity', 'false');  // Set a flag to redirect to the 'activity' section
+                //         }
+                //     }
+
+                // function loadActivity() {
+                //         const address = localStorage.getItem('connectedAddress');
+                //         const allData = JSON.parse(localStorage.getItem('taskData') || '{}');
+                //         const userData = allData[address];
+
+                //         if (userData) {
+                //             const activityBox = document.getElementById('YourActivityBox');
+                //             userData.forEach((session, index) => {
+                //                 const sessionDiv = document.createElement('div');
+                //                 sessionDiv.className = 'activity-session';
+                //                 sessionDiv.innerHTML = `<h3>Session ${index + 1}</h3>`;
+
+                //                 session.forEach(answer => {
+                //                     const answerDiv = document.createElement('div');
+                //                     answerDiv.className = 'activity-answer';
+                //                     answerDiv.innerHTML = `
+                //     <p>Timestamp: ${answer.timestamp}</p>
+                //     <p>Selected Boxes: ${answer.boxes.join(', ')}</p>
+                // `;
+                //                     sessionDiv.appendChild(answerDiv);
+                //                 });
+
+                //                 activityBox.appendChild(sessionDiv);
+                //             });
+                //         }
+                //     }
+
+                // async function loadActivity() {
+                //         // const address = localStorage.getItem('connectedAddress');
+                //         // console.log("接続中のアドレス:" + address);
+                //         // const allData = JSON.parse(localStorage.getItem('taskData') || '{}');
+                //         // const userData = allData[address];
+                //         // console.log("接続中のアドレスユーザーのデータ:" + userData);
+
+                //     const address = localStorage.getItem('connectedAddress');
+                //     console.log("Loading activity for address:", address);  // Debug
+
+                //     const allData = JSON.parse(localStorage.getItem('taskData') || '{}');
+                //     console.log("All data:", allData);  // Debug
+
+                //     const userData = allData[address];
+                //     console.log("User data:", userData);  // Debug
+
+
+                //         if (userData) {
+                //             const activityBox = document.getElementById('YourActivityBox');
+                //             activityBox.innerHTML = '';  // Clear previous data
+                //             userData.forEach((session, index) => {
+                //                 const sessionDiv = document.createElement('div');
+                //                 sessionDiv.className = 'activity-session';
+                //                 sessionDiv.innerHTML = `<h3>Session ${index + 1}</h3>`;
+
+                //                 session.forEach(answer => {
+                //                     const answerDiv = document.createElement('div');
+                //                     answerDiv.className = 'activity-answer';
+                //                     answerDiv.innerHTML = `
+                //     <p>Timestamp: ${answer.timestamp}</p>
+                //     <p>Selected Boxes: ${answer.boxes.join(', ')}</p>
+                // `;
+                //                     sessionDiv.appendChild(answerDiv);
+                //                 });
+
+                //                 activityBox.appendChild(sessionDiv);
+                //             });
+                //         }
+                // }
+
+                async function loadActivity() {
+                        const address = localStorage.getItem('connectedAddress');
+                        const allData = JSON.parse(localStorage.getItem('taskData') || '{}');
+                        const userData = allData[address];
+
+                        if (userData) {
+                            const activityBox = document.getElementById('YourActivityBox');
+                            activityBox.innerHTML = '';  // Clear previous data
+
+                            userData.forEach((session, index) => {
+                                const sessionDiv = document.createElement('div');
+                                sessionDiv.className = 'activity-session';
+                                sessionDiv.innerHTML = `<h3>Complated Task #${index + 1}</h3>`;
+
+                                // Assuming the last answer in each session has the timestamp for the session
+                                const sessionTimestamp = session[session.length - 1]?.timestamp;
+
+                                if (sessionTimestamp) {
+                                    sessionDiv.innerHTML += `<p>Submited Time: ${sessionTimestamp}</p>`;
+                                }
+
+                                const selectedBoxes = session.map(answer => answer.boxes.join(', ')).join('<br>');
+                                sessionDiv.innerHTML += `<p>Selected Boxes: <br>${selectedBoxes}</p>`;
+
+                                activityBox.appendChild(sessionDiv);
+                            });
+                        }
+                    }
+
+
+                
+
+
+                loadActivity();
+
+
+
+    </script>
+
+</body>
+
+</html>

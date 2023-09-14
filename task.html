@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Select Similar Image Boxes</title>
+  <style>
+    #box-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        /* 2 columns */
+        grid-template-rows: repeat(2, 1fr);
+        /* 3 rows */
+        gap: 16px;
+    }   
+
+    .box {
+        width: 300px;
+        /* Adjust the width so that two images can fit side by side */
+        height: 250px;
+        border: 2px solid black;
+        margin: 5px;
+        overflow-y: scroll;
+        /* Enable vertical scrolling */
+    }
+
+    .box img {
+        float: left;
+        /* Allow images to be side by side */
+        width: 150px;
+        height: 150px;
+    }
+
+    .selected {
+        border: 2px solid red;
+    }
+
+    #error-message {
+        color: red;
+    }
+
+    #close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 24px;
+    }
+
+    #timer-icon {
+      font-size: 48px;
+      animation: spin 10s linear infinite;
+      transform-origin: 50% 50%;  /* 中心を軸に設定 */
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+  </style>
+  <script>
+    ページがロードされたときにフラグを確認
+    window.onload = function() {
+      const canAccess = localStorage.getItem('canAccessTask');
+      if (canAccess !== 'true') {
+        alert('タスクにアクセスするには先にウォレットに接続してください、「OK」をクリックするとログインページに移動します。');
+        window.location.href = 'index.html';
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <div id="close-button" onclick="closeTask()">Back to prev screen ❌</div>
+
+  <h1>Select Similar Image Boxes</h1>
+  <p>Wallet Address: <span id="wallet-address"></span></p>
+  
+  <div id="box-container">
+  </div>
+  
+  <button id="submit">Submit</button>
+  <div id="error-message"></div>
+  
+  <table id="result-table">
+    <thead>
+      <tr>
+        <th>Round</th>
+        <th>Selected Boxes</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+  <!-- <div id="completion-message" style="display:none;">
+    <div id="timer-icon">⏳</div>
+    You completed to submit answers 5x, it's finished!
+    <br>
+    <div>Please wait for the screen to redirect.</div>
+  </div> -->
+
+    <div id="completion-message" style="display:none;">
+        <div id="answers"></div>
+        これで送信していいですか？
+        <button onclick="confirmSubmit(true)">はい</button>
+        <button onclick="confirmSubmit(false)">いいえ</button>
+    </div>
+  
+  <script>
+
+    let answers = [];
+
+
+
+    function closeTask() {
+            window.location.href = 'info.html';
+        }
+
+
+
+    let selectedBoxes = [];
+        let round = 1;
+
+        function getRandomImageUrls() {
+            // Generate 10 random Lorem Picsum URLs
+            return Array.from({ length: 10 }, () => `https://picsum.photos/id/${Math.floor(Math.random() * 1000)}/100/100`);
+        }
+
+
+        function displayBoxes() {
+            const container = document.getElementById('box-container');
+            container.innerHTML = '';
+            for (let i = 0; i < 6; i++) {
+                const box = document.createElement('div');
+                box.className = 'box';
+                box.dataset.index = i;
+                box.onclick = toggleSelection;
+
+                const imageUrls = getRandomImageUrls();  // Get random images for each box
+                imageUrls.forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.width = 150;  // Adjust the image width
+                    img.height = 150;  // Adjust the image height
+                    box.appendChild(img);
+                });
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                box.appendChild(checkbox);
+
+                container.appendChild(box);
+            }
+        }
+
+        function toggleSelection(event) {
+            const index = event.target.parentNode.dataset.index;
+            if (selectedBoxes.includes(index)) {
+                selectedBoxes = selectedBoxes.filter(box => box !== index);
+                event.target.parentNode.classList.remove('selected');
+            } else {
+                selectedBoxes.push(index);
+                event.target.parentNode.classList.add('selected');
+            }
+        }
+
+        // document.getElementById('submit').addEventListener('click', function () {
+        //     const errorMessage = document.getElementById('error-message');
+        //     if (selectedBoxes.length === 3) {
+        //         errorMessage.innerHTML = '';
+                
+        //         // Record the result
+        //         const table = document.getElementById('result-table').getElementsByTagName('tbody')[0];
+        //         const newRow = table.insertRow();
+        //         const cell1 = newRow.insertCell(0);
+        //         const cell2 = newRow.insertCell(1);
+        //         cell1.innerHTML = round;
+        //         cell2.innerHTML = selectedBoxes.join(', ');
+        //         // Prepare for the next round
+        //         round++;
+        //         selectedBoxes = [];
+        //         displayBoxes();  // Display new random images
+            
+        //     } else {
+        //         errorMessage.innerHTML = 'Please select exactly 3 boxes.';
+        //     }
+        // });
+
+        document.getElementById('submit').addEventListener('click', function () {
+                const errorMessage = document.getElementById('error-message');
+                if (selectedBoxes.length === 3) {
+                    errorMessage.innerHTML = '';
+
+                    // 答えをローカル変数に保存
+                    const answer = {
+                        timestamp: new Date().toISOString(),
+                        boxes: selectedBoxes
+                    };
+                    answers.push(answer);
+
+                    // 5回の回答が集まったら、ローカルストレージに保存
+                    if (answers.length >= 5) {
+                        const address = localStorage.getItem('connectedAddress');
+                        const existingData = JSON.parse(localStorage.getItem('taskData') || '{}');
+
+                        if (!existingData[address]) {
+                            existingData[address] = [];
+                        }
+                        existingData[address].push(answers);
+
+                        localStorage.setItem('taskData', JSON.stringify(existingData));
+                        answers = [];
+                    }
+
+                    // Record the result
+                    const table = document.getElementById('result-table').getElementsByTagName('tbody')[0];
+                    const newRow = table.insertRow();
+                    const cell1 = newRow.insertCell(0);
+                    const cell2 = newRow.insertCell(1);
+                    cell1.innerHTML = round;
+                    cell2.innerHTML = selectedBoxes.join(', ');
+                    // Prepare for the next round
+                    round++;
+                    selectedBoxes = [];
+                    displayBoxes();  // Display new random images
+
+                } else {
+                    errorMessage.innerHTML = 'Please select exactly 3 boxes.';
+                }
+            });
+
+
+        // Initial display
+        displayBoxes();
+
+        // // ログイン中のwallet addressを表示
+        const walletAddress = localStorage.getItem('connectedAddress');
+        document.getElementById('wallet-address').textContent = walletAddress;
+
+        // // タスク送信回数
+            let submitCount = 0;
+
+        //     document.getElementById('submit').addEventListener('click', function () {
+        //         // ... 既存の送信ロジック ...
+
+        //         submitCount++;
+        //         if (submitCount >= 5) {
+        //             document.getElementById('box-container').style.display = 'none';
+        //             document.getElementById('completion-message').style.display = 'block';
+        //             setTimeout(() => {
+        //                 window.location.href = 'info.html';
+        //             }, 5000);
+        //         }
+        //     });
+
+        //     // function closeTask() {
+        //     //     window.location.href = 'info.html';
+        //     // }
+
+        // Array to store all submitted answers
+            let allAnswers = [];
+
+            document.getElementById('submit').addEventListener('click', function () {
+                // ... existing submission logic ...
+
+                allAnswers.push(selectedBoxes.join(', '));  // Store the submitted answer
+                submitCount++;
+
+                if (submitCount >= 5) {
+                    document.getElementById('box-container').style.display = 'none';
+                    document.getElementById('submit').style.display = 'none';
+                    document.getElementById('completion-message').style.display = 'block';
+                    // document.getElementById('answers').textContent = 'Submitted answers: ' + allAnswers.join(' / ');
+                }
+            });
+
+            function confirmSubmit(isConfirmed) {
+                if (isConfirmed) {
+                    localStorage.setItem('redirectToActivity', 'true');  // Set a flag to redirect to the 'activity' section
+                    window.location.href = 'info.html';
+                } else {
+                    document.getElementById('box-container').style.display = 'block';
+                    document.getElementById('completion-message').style.display = 'none';
+                }
+            }
+
+            function closeTask() {
+                localStorage.setItem('redirectToActivity', 'false');
+                window.location.href = 'info.html';
+            }
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Wallet Connect</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.0/dist/web3.min.js"></script>
+</head>
+
+<body>
+
+    <h1>Connect Your Wallet</h1>
+
+    <button onclick="connectWallet()">Wallet Connect</button>
+
+    <script>
+        async function loadWeb3() {
+            if (window.ethereum) {
+                window.web3 = new Web3(window.ethereum);
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+            } else {
+                alert('Non-Ethereum browser detected. You should consider installing MetaMask.');
+            }
+        }
+
+        async function connectWallet() {
+            await loadWeb3();
+            const accounts = await window.web3.eth.getAccounts();
+
+            if (accounts.length > 0) {
+                localStorage.setItem('connectedAddress', accounts[0]);
+                window.location.href = 'info.html';
+            }
+        }
+    </script>
+
+</body>
+
+</html>
