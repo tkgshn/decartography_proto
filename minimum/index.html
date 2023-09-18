@@ -1,4 +1,4 @@
-
+<!-- 
 
 <!DOCTYPE html>
 <html lang="en">
@@ -56,4 +56,90 @@
 </script>
 
 
+</html> -->
+
+
+<!-- 昼寝後 -->
+
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+    <title>DeCartography</title>
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+    <h1>DeCartography</h1>
+    <div id="task-container"></div>
+    <button onclick="fetchInitialTask()">Next Task</button>
+</body>
+
+</html> -->
+
+
+<!-- カウンター追加 -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>DeCartography</title>
+    <script src="script.js" defer></script>
+    <style>
+        #box-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);  /* 2 columns */
+        grid-template-rows: repeat(2, 1fr);  /* 3 rows */
+        gap: 16px;
+        }
+
+        .box {
+        width: 300px;  /* Adjust the width so that two images can fit side by side */
+        height: 250px;
+        border: 2px solid black;
+        margin: 5px;
+        overflow-y: scroll;  /* Enable vertical scrolling */
+        }
+
+        /* Allow images to be side by side
+        .box img {
+        float: left;  
+        width: 150px;
+        height: 150px;
+        } */
+
+        .selected {
+        border: 2px solid red;
+        }
+
+        #error-message {
+        color: red;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>Welcome to the Content Loader</h1>
+
+    <div id="task-index">Current Task Index: <span id="current-index">-</span></div>
+
+    <div id="box-container">
+        <!-- Boxes will be loaded here -->
+    </div>
+
+        
+
+    <!-- <div id="content"></div> -->
+    
+    <button id="start-task">タスクを始める</button>
+    <button id="next-task" style="display:none;">Next Task</button>
+    <button id="submit" style="display:none;">Submit</button> <!-- Submit ボタンを追加 -->
+    <div id="error-message"></div> <!-- エラーメッセージ用のdivを追加 -->
+
+
+</body>
+
 </html>
+
