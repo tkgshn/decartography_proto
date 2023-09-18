@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html>
 
@@ -17,64 +19,62 @@
     <div id="nft-list"></div>
 
     <script>
-        async function checkImage(url) {
-            try {
-                const res = await fetch(url, {
-                    method: 'HEAD'
-                });
-                return res.ok;
-            } catch (e) {
-                return false;
-            }
-        }
+        // async function checkImage(url) {
+        //     try {
+        //         const res = await fetch(url, {
+        //             method: 'HEAD'
+        //         });
+        //         return res.ok;
+        //     } catch (e) {
+        //         return false;
+        //     }
+        // }
 
-        async function fetchNFTs() {
-            try {
-                const address = document.getElementById('address').value;
-                const response = await fetch(`http://localhost:3000/nfts/${address}`);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                console.log("Fetched data:", data);
+        // async function fetchNFTs() {
+        //     try {
+        //         const address = document.getElementById('address').value;
+        //         const response = await fetch(`http://localhost:3000/nfts/${address}`);
+        //         if (!response.ok) {
+        //             throw new Error('Network response was not ok');
+        //         }
+        //         const data = await response.json();
+        //         console.log("Fetched data:", data);
 
-                if (data && Array.isArray(data)) {
-                    const nftList = document.getElementById('nft-list');
-                    nftList.innerHTML = '';
-                    for (const item of data) {
-                        if (item.media && Array.isArray(item.media)) {
-                            for (const mediaItem of item.media) {
-                                if (mediaItem && mediaItem.raw) {
-                                    const imgUrl = transformIPFS(mediaItem.raw);
-                                    const isValid = await checkImage(imgUrl);
-                                    if (isValid) {
-                                        const img = document.createElement('img');
-                                        img.src = imgUrl;
-                                        img.width = 300;
-                                        img.height = 300;
-                                        nftList.appendChild(img);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+        //         if (data && Array.isArray(data)) {
+        //             const nftList = document.getElementById('nft-list');
+        //             nftList.innerHTML = '';
+        //             for (const item of data) {
+        //                 if (item.media && Array.isArray(item.media)) {
+        //                     for (const mediaItem of item.media) {
+        //                         if (mediaItem && mediaItem.raw) {
+        //                             const imgUrl = transformIPFS(mediaItem.raw);
+        //                             const isValid = await checkImage(imgUrl);
+        //                             if (isValid) {
+        //                                 const img = document.createElement('img');
+        //                                 img.src = imgUrl;
+        //                                 img.width = 300;
+        //                                 img.height = 300;
+        //                                 nftList.appendChild(img);
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         }
 
-            } catch (error) {
-                console.error('Failed to fetch NFTs:', error);
-            }
-        }
+        //     } catch (error) {
+        //         console.error('Failed to fetch NFTs:', error);
+        //     }
+        // }
 
-        function transformIPFS(ipfsUrl) {
-            if (ipfsUrl.startsWith('ipfs://')) {
-                return 'https://ipfs.io/ipfs/' + ipfsUrl.slice(7);
-            }
-            return ipfsUrl;
-        }
+        // function transformIPFS(ipfsUrl) {
+        //     if (ipfsUrl.startsWith('ipfs://')) {
+        //         return 'https://ipfs.io/ipfs/' + ipfsUrl.slice(7);
+        //     }
+        //     return ipfsUrl;
+        // }
     </script>
 
 </body>
 
 </html>
-
-<!-- http://127.0.0.1:3002/index.html -->

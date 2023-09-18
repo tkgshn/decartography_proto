@@ -17,14 +17,16 @@ const config = {
 const alchemy = new Alchemy(config);
 
 const app = express();
-// const port = 3000;
+
 
 const corsOptions = {
-  origin: 'http://127.0.0.1:3002',
+  origin: ['http://127.0.0.1:3002', 'http://127.0.0.1:3003'],
   optionsSuccessStatus: 204,
 };
 
+
 app.use(cors(corsOptions));
+
 
 
 app.get('/nfts/:address', async (req, res) => {
@@ -39,11 +41,7 @@ app.get('/nfts/:address', async (req, res) => {
   }
 });
 
-// app.listen(port, () => {
-//   console.log(`Server running at http://localhost:${port}/`);
-// });
 
 app.listen(3000, () => {
   console.log('Server is running on http://localhost:3000/');
 });
-
