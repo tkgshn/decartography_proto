@@ -1,0 +1,59 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Content Loader</title>
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+    <h1>Flask test</h1>
+    <button id="load-content">Load Content</button>
+    <div id="content"></div>
+</body>
+<script>
+    window.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("load-content").addEventListener("click", () => {
+                fetch("http://127.0.0.1:5000/get-content")
+                    .then(response => response.json())
+                    .then(data => {
+                        const contentDiv = document.getElementById("content");
+                        contentDiv.innerHTML = ''; // 以前の内容をクリア
+
+                        const title = document.createElement('h2');
+                        title.textContent = 'Initial Tasks';
+                        contentDiv.appendChild(title);
+
+                        const taskList = document.createElement('ul');
+
+                        data.initial_tasks.forEach((taskGroup, index) => {
+                            const groupItem = document.createElement('li');
+
+                            const groupTitle = document.createElement('h3');
+                            groupTitle.textContent = `Task ${index + 1}`;
+                            groupItem.appendChild(groupTitle);
+
+                            const addressList = document.createElement('ul');
+                            taskGroup.forEach(address => {
+                                const addressItem = document.createElement('li');
+                                addressItem.textContent = address;
+                                addressList.appendChild(addressItem);
+                            });
+
+                            groupItem.appendChild(addressList);
+                            taskList.appendChild(groupItem);
+                        });
+
+                        contentDiv.appendChild(taskList);
+                    })
+                    .catch(error => console.error("Error fetching content:", error));
+            });
+        });
+
+</script>
+
+
+</html>
